@@ -8,7 +8,7 @@ class NewsViewController: UITableViewController {
     let queueGroup = DispatchGroup()
     var isLoading = false
     var width: CGFloat = 0
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         super.viewDidLoad()
@@ -70,7 +70,7 @@ class NewsViewController: UITableViewController {
     }
     
     func image( _ image:UIImage, withSize newSize:CGSize) -> UIImage {
-
+        
         UIGraphicsBeginImageContext(newSize)
         image.draw(in: CGRect(x: 0,y: 0,width: newSize.width,height: newSize.height))
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
@@ -88,40 +88,55 @@ class NewsViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let newsCard = myNews[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "RepostNewsCard", for: indexPath) as! RepostNewsCard
-        
-        cell.postOwnerAvatar.image = imageService?.photo(atIndexpath: indexPath, byUrl: newsCard.sourceAvatar)
-        
-        let ph = newsCard.copyHistory?[0].attachments?[0].photo?.sizes[3]
-        let aspectRatio = (ph?.aspectRatio ?? 0)
-        let height = width * aspectRatio
-        cell.repostPhoto.sizeThatFits(CGSize(width: width, height: height))
-        cell.repostPhoto.image = imageService?.photo(atIndexpath: indexPath, byUrl: ph?.url ?? "")
-        
-        cell.repostSourceAvatar.image = imageService?.photo(atIndexpath: indexPath, byUrl: newsCard.copyHistory?[0].sourceAvatar ?? "")
-        
-        
-        cell.configure(with: newsCard)
-        return cell
+        if newsCard.type == "post" && newsCard.copyHistory == nil {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "NewsCard", for: indexPath) as! NewsCard
+            
+            let ph = newsCard.attachments?[0].photo?.sizes[3]
+            cell.postPhoto.image = imageService?.photo(atIndexpath: indexPath, byUrl: ph?.url ?? "")
+            let aspectRatio = (ph?.aspectRatio ?? 0)
+            let height = width * aspectRatio
+            
+            cell.postPhoto.sizeThatFits(CGSize(width: width, height: height))
+            cell.configure(with: newsCard)
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "RepostNewsCard", for: indexPath) as! RepostNewsCard
+            
+    //        if cell.delegate == nil {
+    //            cell.delegate = self
+    //        }
+            
+            let ph = newsCard.copyHistory?[0].attachments?[0].photo?.sizes[3]
+            cell.repostPhoto.image = imageService?.photo(atIndexpath: indexPath, byUrl: ph?.url ?? "")
+            let aspectRatio = (ph?.aspectRatio ?? 0)
+            let height = width * aspectRatio
+            
+            cell.repostPhoto.sizeThatFits(CGSize(width: width, height: height))
+
+            cell.configure(with: newsCard)
+            return cell
+        }
     }
-//
-//        override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//
-//            let tableWidth = tableView.bounds.width
-//            let news = self.myNews[indexPath.row].
-//            let aspectRatio = (news.copyHistory?[0].attachments?[0].photo?.sizes[1].aspectRatio)!
-//            let cellHeight = tableWidth * aspectRatio
-//            return cellHeight
-//
-//        }
+    //
     
-//    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        return UITableView.automaticDimension
-//    }
-//    
-//    override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-//        return UITableView.automaticDimension
-//    }
+    //
+    //        override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    //
+    //            let tableWidth = tableView.bounds.width
+    //            let news = self.myNews[indexPath.row].
+    //            let aspectRatio = (news.copyHistory?[0].attachments?[0].photo?.sizes[1].aspectRatio)!
+    //            let cellHeight = tableWidth * aspectRatio
+    //            return cellHeight
+    //
+    //        }
+    
+    //    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    //        return UITableView.automaticDimension
+    //    }
+    //
+    //    override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+    //        return UITableView.automaticDimension
+    //    }
     
 }
 
@@ -162,9 +177,9 @@ extension NewsViewController: RepostViewCellDelegate {
         guard let indexPath = tableView.indexPath(for: cell) else {
             return
         }
-        tableView.beginUpdates()
+//        tableView.beginUpdates()
         tableView.reloadRows(at: [indexPath],
                              with: .automatic)
-        tableView.endUpdates()
+//        tableView.endUpdates()
     }
 }
